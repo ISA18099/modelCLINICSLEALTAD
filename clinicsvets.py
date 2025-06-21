@@ -35,7 +35,8 @@ modelo_nombre = st.radio("📦 Selecciona el modelo de Árbol de Decisión:",
     horizontal=True)
 
 # Función para cargar modelos desde GitHub (RAW)
-@st.cache_resource
+st.info("Este modelo de IA")
+#@st.cache_resource
 def load_model(model_name):
     urls = {
         "decision_tree_classifier": "https://raw.githubusercontent.com/ISA18099/modelCLINICSLEALTAD/main/decision_tree_classifier.pkl",
