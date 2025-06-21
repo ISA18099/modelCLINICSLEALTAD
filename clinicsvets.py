@@ -3,40 +3,55 @@ import pandas as pd
 import joblib
 import requests
 import io
+from PIL import Image
+import base64
 
-# Título
-st.title("🔍 Clasificación de Lealtad del Cliente - Clínica Veterinaria")
+# Configuración general
+st.set_page_config(page_title="Predicción de Lealtad", layout="centered")
 
-# Selección de modelo
-modelo_nombre = st.selectbox("Seleccione el modelo a utilizar:", [
-    "decision_tree_classifier",
-    "best_decision_tree_classifier"
-])
+# Fondo decorativo con imagen
+def add_background_from_url():
+    image_url = "https://cdn.pixabay.com/photo/2019/12/05/17/19/cat-4675984_1280.jpg"  # Gato en consulta
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("{image_url}");
+            background-attachment: fixed;
+            background-size: cover;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-# Función para cargar el modelo desde GitHub (usando RAW)
+add_background_from_url()
+
+st.markdown("<h1 style='text-align: center; color: darkorange;'>🐾 Clasificador de Lealtad del Cliente</h1>", unsafe_allow_html=True)
+
+# Botón para elegir modelo
+modelo_nombre = st.radio("📦 Selecciona el modelo de Árbol de Decisión:",
+    ["decision_tree_classifier", "best_decision_tree_classifier"],
+    horizontal=True)
+
+# Función para cargar modelos desde GitHub (RAW)
 @st.cache_resource
-def load_model(modelo_nombre):
+def load_model(model_name):
     urls = {
         "decision_tree_classifier": "https://raw.githubusercontent.com/ISA18099/modelCLINICSLEALTAD/main/decision_tree_classifier.pkl",
         "best_decision_tree_classifier": "https://raw.githubusercontent.com/ISA18099/modelCLINICSLEALTAD/main/best_decision_tree_classifier.pkl"
     }
 
-    url = urls[modelo_nombre]
+    url = urls[model_name]
     response = requests.get(url)
-
     if response.status_code != 200:
-        raise ValueError(f"No se pudo descargar el modelo desde: {url}")
+        raise ValueError(f"Error al descargar el modelo desde: {url}")
 
-    try:
-        modelo = joblib.load(io.BytesIO(response.content))
-        return modelo
-    except Exception as e:
-        raise ValueError("Error al cargar el modelo. Verifica que sea un archivo .pkl válido.") from e
+    return joblib.load(io.BytesIO(response.content))
 
-# Cargar modelo seleccionado
 modelo = load_model(modelo_nombre)
 
-# Lista de características esperadas
+# Lista de columnas
 columnas = [
     'Genero', 'Mascota', 'Serv_necesarios', 'Atenc_pers', 'Confi_segur', 'Prof_alt_capac',
     'Cerca_viv', 'Infraes_atract', 'Precio_acces', 'Excelent_calid_precio',
@@ -49,34 +64,36 @@ columnas = [
     'Conce_redes_clinic', 'Sigue_redes_clinic', 'Comenta_redes_clinic'
 ]
 
-st.markdown("### 📝 Ingrese los valores para cada característica:")
+st.markdown("### 🧾 Ingrese los valores del cliente:")
 
-# Formulario de entrada
-with st.form("formulario"):
-    valores = {}
-    for col in columnas:
-        valores[col] = st.text_input(f"{col}:", value="0")
+# Iconos personalizados
+iconos = ["🔹", "🐶", "✅", "🧑‍⚕️", "🔒", "🎓", "🏘️", "🏥", "💲", "🏆",
+          "😊", "🤝", "🧠", "👍", "🏅", "🛠️", "💉", "👩‍⚕️", "🔬", "🛁", "✂️",
+          "🦴", "🐛", "🐜", "🎁", "🍖", "🩻", "🖼️", "🧪", "🔁", "🏥", "🌐", "📲", "💬"]
 
-    submit = st.form_submit_button("🔮 Predecir lealtad")
+# Formulario amigable
+with st.form("formulario_cliente"):
+    entrada = {}
+    for col, icono in zip(columnas, iconos):
+        entrada[col] = st.text_input(f"{icono} {col}", value="0")
+
+    pred_btn = st.form_submit_button("🔮 Predecir lealtad")
 
 # Lógica de predicción
-if submit:
+if pred_btn:
     try:
-        df_entrada = pd.DataFrame([valores])
-        df_entrada = df_entrada.astype(float)
+        entrada_df = pd.DataFrame([entrada]).astype(float)
 
-        # Validación opcional
         if hasattr(modelo, "feature_names_in_"):
-            faltantes = set(modelo.feature_names_in_) - set(df_entrada.columns)
-            if faltantes:
-                st.error(f"Faltan columnas requeridas por el modelo: {faltantes}")
+            faltan = set(modelo.feature_names_in_) - set(entrada_df.columns)
+            if faltan:
+                st.error(f"🚫 Faltan columnas requeridas por el modelo: {faltan}")
             else:
-                pred = modelo.predict(df_entrada)[0]
-                resultado = "✅ Lealtad (0)" if pred == 0 else "❌ No Lealtad (1)"
-                st.success(f"Resultado de la predicción: **{resultado}**")
+                pred = modelo.predict(entrada_df)[0]
+                st.success("🐾 Resultado: **Lealtad (0)**" if pred == 0 else "🚫 Resultado: **No lealtad (1)**")
         else:
-            pred = modelo.predict(df_entrada)[0]
-            resultado = "✅ Lealtad (0)" if pred == 0 else "❌ No Lealtad (1)"
-            st.success(f"Resultado de la predicción: **{resultado}**")
+            pred = modelo.predict(entrada_df)[0]
+            st.success("🐾 Resultado: **Lealtad (0)**" if pred == 0 else "🚫 Resultado: **No lealtad (1)**")
     except Exception as e:
-        st.error(f"Error al procesar la predicción: {e}")
+        st.error(f"❌ Error al procesar la predicción: {e}")
+
