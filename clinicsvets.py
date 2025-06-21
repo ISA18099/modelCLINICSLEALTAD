@@ -42,7 +42,7 @@ columnas = [
     'Cerca_viv', 'Infraes_atract', 'Precio_acces', 'Excelent_calid_precio',
     'Medico_carism', 'Inspira_confianz', 'Conoce_profund', 'Buen_trato_asist',
     'Recon_logro_asist', 'Corrig_error', 'Disposic_pago_vacunas', 'Disposic_pago_consult',
-    'Disposic_pago_esteriliz', 'Disposic_pago_baño', 'Disposic_pago_cortepelo',
+    'Disposic_pago_esteriliz', 'Disposic_pago_baños', 'Disposic_pago_cortepelo',
     'Disposic_pago_corteuna', 'Disposic_pago_despar_inter', 'Disposic_pago_despar_exter',
     'Disposic_pago_accesor', 'Disposic_pago_comida', 'Disposic_pago_ecograf',
     'Disposic_pago_radiograf', 'Disposic_pago_analab', 'Cliente_frecuen', 'Regresa_clinic',
