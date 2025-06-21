@@ -14,13 +14,25 @@ model_option = st.selectbox("Selecciona el modelo a utilizar", [
 ])
 
 # Cargar modelo desde GitHub o ruta local
-@st.cache_resource
+
 def load_model(model_name):
-    # Cambia esta URL al raw link de tu archivo en GitHub
-    url_base = "https://raw.githubusercontent.com/tu_usuario/tu_repo/main/"
-    response = requests.get(url_base + model_name + ".pkl")
-    model = joblib.load(io.BytesIO(response.content))
-    return model
+    urls = {
+        "decision_tree_classifier": "https://raw.githubusercontent.com/ISA18099/modelCLINICSLEALTAD/main/decision_tree_classifier.pkl",
+        "best_decision_tree_classifier": "https://raw.githubusercontent.com/ISA18099/modelCLINICSLEALTAD/main/best_decision_tree_classifier.pkl"
+    }
+
+    url = urls[model_name]
+
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise ValueError(f"❌ No se pudo descargar el modelo desde: {url}")
+
+    try:
+        model = joblib.load(io.BytesIO(response.content))
+        return model
+    except Exception as e:
+        raise ValueError("❌ El archivo descargado no es un modelo válido (.pkl).") from e
+
 
 model = load_model(model_option)
 
