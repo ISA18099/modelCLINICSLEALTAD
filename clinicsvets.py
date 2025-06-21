@@ -35,7 +35,7 @@ modelo_nombre = st.radio("📦 Selecciona el modelo de Árbol de Decisión:",
     horizontal=True)
 
 # Función para cargar modelos desde GitHub (RAW)
-st.info("Este modelo de IA te ayudará a predecir la lealtad de tu cliente, tienes dos modelos para predecir: decisión_tree_classifier y best_decision_tree_classifier. Siempre que resulte 0= Lealtad y si resulta 1=Nolealtad".)
+st.info("Este modelo de IA te ayudará a predecir la lealtad de los clientes que visitan tu clínica veterinaria tienes dos modelos donde 0 es Leal y 1 es Noleal".)
 #@st.cache_resource
 def load_model(model_name):
     urls = {
